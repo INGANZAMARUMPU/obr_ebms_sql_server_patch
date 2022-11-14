@@ -17,6 +17,21 @@ class Facture:
     commission_supplementaire:float
     commission_supp_remobourse:bool
 
+    nom_cli:str
+    prenom_cli:str
+    nom_commercial:str
+    type_:str
+    commission_supplementaire:float
+    nif:str
+
+    province:str
+    commune:str
+    colline:str
+    numero:str
+    tele_fixe:str
+    tele_mobile:str
+    type_adresse:str
+
     def getLigneFact(self):
         pass
 

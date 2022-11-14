@@ -17,6 +17,7 @@ class Facture:
     operateur:str
     detaillant:float
     representant:float
+    
     nom_carte:str
     lon_nums:int
     commission_motard:float
