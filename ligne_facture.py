@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 @dataclass
-class Facture:
+class LigneFacture:
     num_lign:int
     num_fact_papier:str
     type_cartes:str
@@ -17,10 +17,9 @@ class Facture:
     operateur:str
     detaillant:float
     representant:float
-    
+
     nom_carte:str
-    lon_nums:int
-    commission_motard:float
+    long_nums:int
 
     def getLigneFact(self):
         pass

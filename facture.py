@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from ligne_facture import LigneFacture
+
 @dataclass
 class Facture:
     num_fact:str
@@ -31,21 +33,44 @@ class Facture:
     tele_fixe:str
     tele_mobile:str
     type_adresse:str
+    liste_lignes:list = field(init=False)
 
-    def getLigneFact(self, cursor):
+    def __post_init__(self):
+        self.liste_lignes = []
+
+    def generateObrFact(self, cursor):
 
         query = """
-            SELECT * FROM
+            SELECT
+                LigneFact.NumLign,
+                LigneFact.NumFact,
+                LigneFact.TypeCartes,
+                LigneFact.DebutPlage,
+                LigneFact.FinPlage,
+                LigneFact.prix,
+                LigneFact.commission,
+                LigneFact.Commission_Supplementaire,
+                LigneFact.quantite,
+
+                TypeCarte.Prix_Achat,
+                TypeCarte.Prix_Vente,
+                TypeCarte.Operateur,
+                TypeCarte.Détaillant,
+                TypeCarte.Représentant,
+                TypeCarte.nomCarte,
+                TypeCarte.longNums
+            FROM
                 LigneFact
             JOIN
                 TypeCarte
             ON 
                 TypeCarte.TypeCarte = LigneFact.TypeCartes
             WHERE
-                LigneFact.numFact = '%s'
-        """%(self.num_fact)
+                LigneFact.numFact = '{}'
+        """.format(self.num_fact)
 
         cursor.execute(query)
-        return cursor.fetchall()
-
+        liste_lignes = cursor.fetchall()
+        for ligne in liste_lignes:
+            self.liste_lignes.append(LigneFacture(*ligne))
 

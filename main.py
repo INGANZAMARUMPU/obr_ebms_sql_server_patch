@@ -56,6 +56,8 @@ query = """
         Facture.IdCli = adresseCli.IdCli
     WHERE
         Facture.DateFact >= '2019-30-04 00:00:00'
+    ORDER BY
+        Facture.DateFact
 """
 
 cursor.execute(query)
@@ -65,7 +67,7 @@ for item in items:
     # print(item)
 
     facture = Facture(*item)
-    ligne_fact = facture.getLigneFact(cursor)
-    print(f"========== {facture.num_fact} ==========")
-    for ligne in ligne_fact:
-        print(ligne)
+    ligne_fact = facture.generateObrFact(cursor)
+    print(f"========== {facture.num_fact} {facture.date_fact} ==========")
+    # for ligne in ligne_fact:
+    #     print(ligne)
