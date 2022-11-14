@@ -15,13 +15,13 @@ class Facture:
     autorisation:str
     interet:float
     commission_supplementaire:float
-    commission_supp_remobourse:bool
+    commission_supp_rembourse:bool
 
     nom_cli:str
     prenom_cli:str
     nom_commercial:str
     type_:str
-    commission_supplementaire:float
+    comission_supplementaire:float
     nif:str
 
     province:str
@@ -32,7 +32,21 @@ class Facture:
     tele_mobile:str
     type_adresse:str
 
-    def getLigneFact(self):
-        pass
+    def getLigneFact(self, conn):
+        cursor = conn.cursor()
+
+        query = """
+            SELECT * FROM
+                LigneFact
+            JOIN
+                TypeCarte
+            ON 
+                TypeCarte.TypeCarte = LigneFact.TypeCartes
+            WHERE
+                LigneFact.numFact >= '%s'
+        """%(self.num_fact)
+
+        cursor.execute(query)
+        return cursor
 
 

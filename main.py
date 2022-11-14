@@ -1,6 +1,7 @@
 import pyodbc
 
-import variables 
+from facture import Facture
+import variables
 
 conn = pyodbc.connect(
     driver=variables.driver,
@@ -13,7 +14,38 @@ conn = pyodbc.connect(
 cursor = conn.cursor()
 
 query = """
-    SELECT * FROM
+    SELECT
+
+    Facture.numFact,
+    Facture.numFactPapier,
+    Facture.idUtil,
+    Facture.idCli,
+    Facture.dateFact,
+    Facture.sommeFacture,
+    Facture.commission,
+    Facture.commissionRembourse,
+    Facture.sommeRestante,
+    Facture.autorisation,
+    Facture.interet,
+    Facture.commissionSupplementaire,
+    Facture.commission_Supp_Rembourse,
+
+    clients.nomCli,
+    clients.prenomCli,
+    clients.nomCommercial,
+    clients.type,
+    clients.comissionSupplentaire,
+    clients.nif,
+
+    adresseCli.province,
+    adresseCli.commune,
+    adresseCli.colline,
+    adresseCli.numero,
+    adresseCli.teleFixe,
+    adresseCli.teleMobile,
+    adresseCli.typeAdresse
+
+    FROM
         Facture
     JOIN
         clients
@@ -24,10 +56,25 @@ query = """
     ON
         Facture.IdCli = adresseCli.IdCli
     WHERE
-        DateFact >= '2019-30-04 00:00:00'
+        Facture.DateFact >= '2019-30-04 00:00:00'
 """
 
 cursor.execute(query)
 
-for i in cursor:
-    print(i)
+conn2 = pyodbc.connect(
+    driver=variables.driver,
+    host=variables.host,
+    database=variables.database,
+    user=variables.user,
+    password=variables.password,
+)
+
+
+for item in cursor:
+    # print(item)
+
+    facture = Facture(*item)
+    ligne_fact = facture.getLigneFact(conn2)
+    print(f"========== {facture.num_fact} ==========")
+    for ligne in ligne_fact:
+        print(ligne)
