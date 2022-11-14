@@ -32,8 +32,7 @@ class Facture:
     tele_mobile:str
     type_adresse:str
 
-    def getLigneFact(self, conn):
-        cursor = conn.cursor()
+    def getLigneFact(self, cursor):
 
         query = """
             SELECT * FROM
@@ -43,10 +42,10 @@ class Facture:
             ON 
                 TypeCarte.TypeCarte = LigneFact.TypeCartes
             WHERE
-                LigneFact.numFact >= '%s'
+                LigneFact.numFact = '%s'
         """%(self.num_fact)
 
         cursor.execute(query)
-        return cursor
+        return cursor.fetchall()
 
 
