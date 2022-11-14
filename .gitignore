@@ -1,0 +1,6 @@
+*.sqlite3*
+
+**__*__
+0001_initial.py
+variables.py
+????_*.py
