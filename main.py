@@ -16,7 +16,7 @@ cursor = conn.cursor()
 query = """
     SELECT
         Facture.numFact AS invoice_number,
-        Facture.dateFact AS invoice_date,
+        CAST(Facture.dateFact AS DATE) AS invoice_date,
         'FN' AS invoice_type,
         '2' AS tp_type,
         'NELIC TELECOM' AS tp_name,
@@ -38,7 +38,7 @@ query = """
 
         '1' AS payment_type,
         'BIF' AS invoice_currency,
-        clients.nomCli+' '+clients.prenomCli+' '+clients.nomCommercial, AS customer_name,
+        clients.nomCli+' '+clients.prenomCli+' '+clients.nomCommercial AS customer_name,
         clients.nif AS customer_TIN,
         adresseCli.commune+' '+adresseCli.province AS customer_address,
         '1' AS vat_customer_payer,
@@ -70,7 +70,7 @@ for item in items:
 
     facture = Facture(*item)
     ligne_fact = facture.generateObrFact(cursor)
-    print(f"========== {facture.num_fact} {facture.date_fact} ==========")
+    print(f"========== {facture.invoice_number} {facture.invoice_date} ==========")
     print(facture.__dict__)
     break
     # for ligne in ligne_fact:

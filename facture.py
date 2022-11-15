@@ -5,60 +5,54 @@ from ligne_facture import LigneFacture
 
 @dataclass
 class Facture:
-    num_fact:str
-    num_fact_papier:str
-    id_util:str
-    id_cli:int
-    date_fact:datetime
-    somme_facture:float
-    commission:float
-    commission_rembourse:bool
-    somme_restante:float
-    autorisation:str
-    interet:float
-    commission_supplementaire:float
-    commission_supp_rembourse:bool
-
-    nom_cli:str
-    prenom_cli:str
-    nom_commercial:str
-    type_:str
-    comission_supplementaire:float
-    nif:str
-
-    province:str
-    commune:str
-    colline:str
-    numero:str
-    tele_fixe:str
-    tele_mobile:str
-    type_adresse:str
-    liste_lignes:list = field(init=False)
+    invoice_number:str
+    invoice_date:str
+    invoice_type:str
+    tp_type:str
+    tp_name:str
+    tp_TIN:str
+    tp_trade_number:str
+    tp_postal_number:str
+    tp_phone_number:str
+    tp_address_province:str
+    tp_address_commune:str
+    tp_address_quartier:str
+    tp_address_avenue:str
+    tp_address_number:str
+    vat_taxpayer:str
+    ct_taxpayer:str
+    tl_taxpayer:str
+    tp_fiscal_center:str
+    tp_activity_sector:str
+    tp_legal_form:str
+    payment_type:str
+    invoice_currency:str
+    customer_name:str
+    customer_TIN:str
+    customer_address:str
+    vat_customer_payer:str
+    cancelled_invoice_ref:str
+    invoice_ref:str
+    invoice_signature:str
+    invoice_signature_date:str
+    invoice_items:list = field(init=False)
 
     def __post_init__(self):
-        self.liste_lignes = []
+        self.invoice_items = []
 
     def generateObrFact(self, cursor):
 
         query = """
             SELECT
-                LigneFact.NumLign,
-                LigneFact.NumFact,
-                LigneFact.TypeCartes,
-                LigneFact.DebutPlage,
-                LigneFact.FinPlage,
-                LigneFact.prix,
-                LigneFact.commission,
-                LigneFact.Commission_Supplementaire,
-                LigneFact.quantite,
-
-                TypeCarte.Prix_Achat,
-                TypeCarte.Prix_Vente,
-                TypeCarte.Operateur,
-                TypeCarte.Détaillant,
-                TypeCarte.Représentant,
-                TypeCarte.nomCarte,
-                TypeCarte.longNums
+                TypeCarte.NomCarte AS item_designation,
+                LigneFact.quantite AS item_quantity,
+                LigneFact.prix AS item_price,
+                0 AS item_ct,
+                0 AS item_tl,
+                LigneFact.prix AS item_price_nvat,
+                0 AS vat,
+                LigneFact.prix AS item_price_wvat,
+                LigneFact.prix AS item_total_amount
             FROM
                 LigneFact
             JOIN
@@ -67,10 +61,10 @@ class Facture:
                 TypeCarte.TypeCarte = LigneFact.TypeCartes
             WHERE
                 LigneFact.numFact = '{}'
-        """.format(self.num_fact)
+        """.format(self.invoice_number)
 
         cursor.execute(query)
         liste_lignes = cursor.fetchall()
         for ligne in liste_lignes:
-            self.liste_lignes.append(LigneFacture(*ligne))
+            self.invoice_items.append(LigneFacture(*ligne).__dict__)
 
