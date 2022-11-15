@@ -41,6 +41,8 @@ def sendToOBR(facture):
 		return sendToOBR(facture)
 	response = r.json()
 	if(not response["success"]):
-		print(f"\nEchec Facture {facture['invoice_number']}", response["msg"])
+		if('existe déjà' in response["msg"]):
+			return True
+		print(f"\nEchec Facture {facture['invoice_number']}\n", response["msg"])
 		return False
 	return True
