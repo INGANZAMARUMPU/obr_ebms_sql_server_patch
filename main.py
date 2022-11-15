@@ -42,7 +42,7 @@ with open("LAST.DAT", 'r+') as file:
 
             '1' AS payment_type,
             'BIF' AS invoice_currency,
-            clients.nomCli+' '+clients.prenomCli+' '+clients.nomCommercial AS customer_name,
+            clients.NomCli+' '+clients.PrenomCli AS customer_name,
             clients.nif AS customer_TIN,
             adresseCli.commune+' '+adresseCli.province AS customer_address,
             '1' AS vat_customer_payer,
