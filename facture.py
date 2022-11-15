@@ -50,14 +50,20 @@ class Facture:
         query = """
             SELECT
                 TypeCarte.NomCarte AS item_designation,
-                LigneFact.quantite AS item_quantity,
+                1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float) AS item_quantity,
                 LigneFact.prix AS item_price,
                 0 AS item_ct,
                 0 AS item_tl,
-                LigneFact.prix AS item_price_nvat,
+                LigneFact.prix*(
+                    1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float)
+                ) AS item_price_nvat,
                 0 AS vat,
-                LigneFact.prix AS item_price_wvat,
-                LigneFact.prix AS item_total_amount
+                LigneFact.prix*(
+                    1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float)
+                ) AS item_price_wvat,
+                LigneFact.prix*(
+                    1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float)
+                ) AS item_total_amount
             FROM
                 LigneFact
             JOIN
