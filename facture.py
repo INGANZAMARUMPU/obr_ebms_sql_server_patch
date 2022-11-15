@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from ligne_facture import LigneFacture
+import variables
 
 @dataclass
 class Facture:
@@ -38,6 +39,10 @@ class Facture:
     invoice_items:list = field(init=False)
 
     def __post_init__(self):
+        date = self.invoice_date.strftime("%Y%m%d%H%M%S")
+        self.invoice_date = self.invoice_date.strftime("%Y-%m-%d %H:%M:%S")
+        self.invoice_signature_date = self.invoice_signature_date.strftime("%Y-%m-%d %H:%M:%S")
+        self.invoice_signature = f"{variables.obr_nif}/{variables.obr_user}/{date}/{self.invoice_number}"
         self.invoice_items = []
 
     def generateObrFact(self, cursor):
@@ -60,10 +65,10 @@ class Facture:
             ON 
                 TypeCarte.TypeCarte = LigneFact.TypeCartes
             WHERE
-                LigneFact.numFact = '{}'
-        """.format(self.invoice_number)
+                LigneFact.numFact = ?
+        """
 
-        cursor.execute(query)
+        cursor.execute(query, self.invoice_number)
         liste_lignes = cursor.fetchall()
         for ligne in liste_lignes:
             self.invoice_items.append(LigneFacture(*ligne).__dict__)

@@ -16,11 +16,11 @@ cursor = conn.cursor()
 query = """
     SELECT
         Facture.numFact AS invoice_number,
-        CAST(Facture.dateFact AS DATE) AS invoice_date,
+        Facture.dateFact AS invoice_date,
         'FN' AS invoice_type,
         '2' AS tp_type,
         'NELIC TELECOM' AS tp_name,
-        '400058661' AS tp_TIN,
+        ? AS tp_TIN,
         '05267' AS tp_trade_number,
         '' AS tp_postal_number,
         '+25769069120' AS tp_phone_number,
@@ -44,7 +44,7 @@ query = """
         '1' AS vat_customer_payer,
         '' AS cancelled_invoice_ref,
         '' AS invoice_ref,
-        '4400773244/ws440077324400027/20211206073022/0001/2021' AS invoice_signature,
+        '' AS invoice_signature,
         Facture.dateFact AS invoice_signature_date
     FROM
         Facture
@@ -62,7 +62,7 @@ query = """
         Facture.DateFact
 """
 
-cursor.execute(query)
+cursor.execute(query, variables.obr_nif)
 
 items = cursor.fetchall()
 for item in items:
