@@ -15,35 +15,37 @@ cursor = conn.cursor()
 
 query = """
     SELECT
-        Facture.numFact,
-        Facture.numFactPapier,
-        Facture.idUtil,
-        Facture.idCli,
-        Facture.dateFact,
-        Facture.sommeFacture,
-        Facture.commission,
-        Facture.commissionRembourse,
-        Facture.sommeRestante,
-        Facture.autorisation,
-        Facture.interet,
-        Facture.commissionSupplementaire,
-        Facture.commission_Supp_Rembourse,
+        Facture.numFact AS invoice_number,
+        Facture.dateFact AS invoice_date,
+        'FN' AS invoice_type,
+        '2' AS tp_type,
+        'NELIC TELECOM' AS tp_name,
+        '400058661' AS tp_TIN,
+        '05267' AS tp_trade_number,
+        '' AS tp_postal_number,
+        '+25769069120' AS tp_phone_number,
+        'BUJUMBURA' AS tp_address_province,
+        'MUKAZA' AS tp_address_commune,
+        'ROHERO' AS tp_address_quartier,
+        'BUSINESS PLAZA' AS tp_address_avenue,
+        'No. 20' AS tp_address_number,
+        '0' AS vat_taxpayer,
+        '0' AS ct_taxpayer,
+        '0' AS tl_taxpayer,
+        'DMC' AS tp_fiscal_center,
+        'VENTE DE CARTE DE RECHARGE' AS tp_activity_sector,
+        'S.U.' AS tp_legal_form,
 
-        clients.nomCli,
-        clients.prenomCli,
-        clients.nomCommercial,
-        clients.type,
-        clients.comissionSupplentaire,
-        clients.nif,
-
-        adresseCli.province,
-        adresseCli.commune,
-        adresseCli.colline,
-        adresseCli.numero,
-        adresseCli.teleFixe,
-        adresseCli.teleMobile,
-        adresseCli.typeAdresse
-
+        '1' AS payment_type,
+        'BIF' AS invoice_currency,
+        clients.nomCli+' '+clients.prenomCli+' '+clients.nomCommercial, AS customer_name,
+        clients.nif AS customer_TIN,
+        adresseCli.commune+' '+adresseCli.province AS customer_address,
+        '1' AS vat_customer_payer,
+        '' AS cancelled_invoice_ref,
+        '' AS invoice_ref,
+        '4400773244/ws440077324400027/20211206073022/0001/2021' AS invoice_signature,
+        Facture.dateFact AS invoice_signature_date
     FROM
         Facture
     JOIN
@@ -69,5 +71,7 @@ for item in items:
     facture = Facture(*item)
     ligne_fact = facture.generateObrFact(cursor)
     print(f"========== {facture.num_fact} {facture.date_fact} ==========")
+    print(facture.__dict__)
+    break
     # for ligne in ligne_fact:
     #     print(ligne)
