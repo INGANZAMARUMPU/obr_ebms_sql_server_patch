@@ -2,7 +2,6 @@ import requests
 import json
 import variables
 
-base_url = "https://ebms.obr.gov.bi:9443/ebms_api"
 headers = {}
 
 def login():
@@ -11,7 +10,7 @@ def login():
 		"password": variables.obr_pass
 	}
 	r  = requests.post(
-		base_url+"/login/",
+		variables.obr_url+"/login/",
 		data=json.dumps(data)
 	)
 	global headers
@@ -31,7 +30,7 @@ def sendToOBR(facture):
 		if not login():
 			return False
 	r = requests.post(
-		base_url+"/addInvoice/",
+		variables.obr_url+"/addInvoice/",
 		data=json.dumps(facture),
 		headers=headers
 	)
