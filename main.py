@@ -9,7 +9,7 @@ import variables
 from functions import *
 
 def main():
-    print(f"NEW PROCESS ON {datetime.now()}")
+    print("connecting to the server")
     conn = pyodbc.connect(
         driver=variables.driver,
         host=variables.host,
@@ -22,6 +22,7 @@ def main():
 
     with open("LAST.DAT", 'r') as file:
         min_date = file.readline() or "2018-16-11 00:00:00"
+        print(f"NEW PROCESS STARTING ON {min_date}")
 
     query = """
         SELECT
@@ -72,22 +73,27 @@ def main():
             Facture.DateFact
     """
 
+    print("Sending request")
     cursor.execute(query, variables.obr_nif, min_date)
 
     items = cursor.fetchall()
 
+    print(f"iteration on {len(items)} got from db")
     # for item in tqdm(items):
     for i, item in enumerate(items):
-        print("\r", f"{i}/{len(item)}",end="")
         facture = Facture(*item)
         facture.generateObrFact(cursor)
         if sendToOBR(facture.__dict__) == STATUS.SUCCESS:
+            print(f"[SUCCESS] facture no. {facture.invoice_number}",end="")
             with open("LAST.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
+            continue
         elif sendToOBR(facture.__dict__) == STATUS.FAILED:
+            print(f"[FAILED] facture no. {facture.invoice_number}",end="")
             break
+        print(f"[IGNORED] facture no. {facture.invoice_number}",end="")
 
 if __name__ == "__main__":
     main()
