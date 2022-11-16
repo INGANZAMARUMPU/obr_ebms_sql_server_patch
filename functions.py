@@ -35,7 +35,6 @@ def sendToOBR(facture):
 	global headers
 	if not headers.get('Authorization'):
 		if not login():
-			print("Erreur de creation de session")
 			return STATUS.FAILED
 	r = requests.post(
 		variables.obr_url+"/addInvoice/",
@@ -44,14 +43,12 @@ def sendToOBR(facture):
 	)
 	if r.status_code == 403:
 		if not login():
-			print("Erreur de creation de session")
 			return STATUS.FAILED
 		return sendToOBR(facture)
 	response = r.json()
 	if(not response["success"]):
 		if('existe déjà' in response["msg"] or 'date actuelle' in response["msg"]):
-			print(f"Warning facture {facture['invoice_number']} ignorée")
+			print(response[msg])
 			return STATUS.IGNORED
-		print(f"\nEchec Facture {facture['invoice_number']}\n", response["msg"])
 		return STATUS.FAILED
 	return STATUS.SUCCESS

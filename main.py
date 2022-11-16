@@ -73,7 +73,8 @@ def main():
             Facture.DateFact
     """
 
-    print("Sending request")
+    print("Sending SQL QUERY")
+    print(query)
     cursor.execute(query, variables.obr_nif, min_date)
 
     items = cursor.fetchall()
