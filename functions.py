@@ -18,7 +18,8 @@ def login():
 	}
 	r  = requests.post(
 		variables.obr_url+"/login/",
-		data=json.dumps(data)
+		data=json.dumps(data),
+		timeout=10,
 	)
 	global headers
 	try:
@@ -39,7 +40,8 @@ def sendToOBR(facture):
 	r = requests.post(
 		variables.obr_url+"/addInvoice/",
 		data=json.dumps(facture),
-		headers=headers
+		headers=headers,
+		timeout=10,
 	)
 	if r.status_code == 403:
 		if not login():

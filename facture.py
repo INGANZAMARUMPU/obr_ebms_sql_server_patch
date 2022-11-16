@@ -45,6 +45,7 @@ class Facture:
         self.invoice_signature = f"{variables.obr_nif}/{variables.obr_user}/{date}/{self.invoice_number}"
         self.invoice_items = []
         self.customer_TIN = self.customer_TIN or ""
+        self.customer_address = self.customer_address or ""
 
     def generateObrFact(self, cursor):
 

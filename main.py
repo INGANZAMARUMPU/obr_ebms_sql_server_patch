@@ -63,7 +63,7 @@ def main():
             clients
         ON 
             Facture.idCli = clients.IdCli
-        JOIN
+        LEFT OUTER JOIN
             adresseCli
         ON
             Facture.IdCli = adresseCli.IdCli
@@ -74,7 +74,7 @@ def main():
     """
 
     print("Sending SQL QUERY")
-    print(query)
+    # print(query)
     cursor.execute(query, variables.obr_nif, min_date)
 
     items = cursor.fetchall()
