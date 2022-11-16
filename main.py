@@ -81,17 +81,18 @@ def main():
         print("\r", f"{i}/{len(item)}",end="")
         facture = Facture(*item)
         facture.generateObrFact(cursor)
-        if not sendToOBR(facture.__dict__):
+        if sendToOBR(facture.__dict__) == STATUS.SUCCESS:
+            with open("LAST.DAT", 'w') as file:
+                last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+                file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
+                file.seek(0)
+        elif sendToOBR(facture.__dict__) == STATUS.FAILED:
             break
-        with open("LAST.DAT", 'w') as file:
-            last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
-            file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
-            file.seek(0)
-
 
 if __name__ == "__main__":
-    schedule.every(10).minutes.do(main)
+    main()
+    # schedule.every(10).minutes.do(main)
 
-    while True:
-        schedule.run_pending()
-        time.sleep(10)
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(10)
