@@ -17,7 +17,7 @@ conn = pyodbc.connect(
 cursor = conn.cursor()
 
 with open("LAST.DAT", 'r') as file:
-    min_date = file.readline() or "2019-30-04 00:00:00"
+    min_date = file.readline() or "2022-16-11 00:00:00"
 
 query = """
     SELECT
