@@ -19,7 +19,7 @@ def login():
 	r  = requests.post(
 		variables.obr_url+"/login/",
 		data=json.dumps(data),
-		timeout=10,
+		timeout=20
 	)
 	global headers
 	try:
@@ -41,7 +41,7 @@ def sendToOBR(facture):
 		variables.obr_url+"/addInvoice/",
 		data=json.dumps(facture),
 		headers=headers,
-		timeout=10,
+		timeout=20
 	)
 	if r.status_code == 403:
 		if not login():
@@ -50,7 +50,7 @@ def sendToOBR(facture):
 	response = r.json()
 	if(not response["success"]):
 		if('existe déjà' in response["msg"] or 'date actuelle' in response["msg"]):
-			print(response[msg])
+			print(response["msg"])
 			return STATUS.IGNORED
 		return STATUS.FAILED
 	return STATUS.SUCCESS

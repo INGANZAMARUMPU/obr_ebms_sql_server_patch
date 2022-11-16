@@ -84,17 +84,18 @@ def main():
     for i, item in enumerate(items):
         facture = Facture(*item)
         facture.generateObrFact(cursor)
-        if sendToOBR(facture.__dict__) == STATUS.SUCCESS:
-            print(f"[SUCCESS] facture no. {facture.invoice_number}",end="")
+        send_status = sendToOBR(facture.__dict__)
+        if send_status == STATUS.SUCCESS:
+            print(f"[SUCCESS] facture no. {facture.invoice_number}")
             with open("LAST.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
             continue
-        elif sendToOBR(facture.__dict__) == STATUS.FAILED:
-            print(f"[FAILED] facture no. {facture.invoice_number}",end="")
+        elif send_status == STATUS.FAILED:
+            print(f"[FAILED] facture no. {facture.invoice_number}")
             break
-        print(f"[IGNORED] facture no. {facture.invoice_number}",end="")
+        print(f"[IGNORED] facture no. {facture.invoice_number}")
 
 if __name__ == "__main__":
     main()
