@@ -54,7 +54,7 @@ def main():
             adresseCli.commune+' '+adresseCli.province AS customer_address,
             '1' AS vat_customer_payer,
             '' AS cancelled_invoice_ref,
-            '' AS invoice_ref,
+            Facture.numFact AS invoice_ref,
             '' AS invoice_signature,
             Facture.dateFact AS invoice_signature_date
         FROM
@@ -83,10 +83,17 @@ def main():
     # for item in tqdm(items):
     for i, item in enumerate(items):
         facture = Facture(*item)
+        if(i%2 == 1):
+            facture.cancelled_invoice_ref = items[i-1].invoice_ref
         facture.generateObrFact(cursor)
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
-            print(f"[SUCCESS] facture no. {facture.invoice_number}")
+            ## FOR REPLACEMENT SIMULATION
+            print(i)
+            if(i%2 == 1):
+                print(f"[REPLACED] facture no. {facture.invoice_number}")
+            else:
+                print(f"[SUCCESS] facture no. {facture.invoice_number}")
             with open("LAST.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
