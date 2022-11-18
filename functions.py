@@ -52,9 +52,6 @@ def sendToOBR(facture_dict):
 		if('existe déjà' in response["msg"] or 'date actuelle' in response["msg"]):
 			print(response["msg"])
 			return STATUS.IGNORED
-		if('Numéro de référence' in response["msg"]):
-			print(response["msg"])
-			return STATUS.IGNORED
 		print(response["msg"])
 		return STATUS.FAILED
 	return STATUS.SUCCESS

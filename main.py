@@ -83,17 +83,10 @@ def main():
     # for item in tqdm(items):
     for i, item in enumerate(items):
         facture = Facture(*item)
-        if(i%2 == 1):
-            facture.cancelled_invoice_ref = items[i-1].invoice_ref
         facture.generateObrFact(cursor)
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
-            ## FOR REPLACEMENT SIMULATION
-            print(i)
-            if(i%2 == 1):
-                print(f"[REPLACED] facture no. {facture.invoice_number}")
-            else:
-                print(f"[SUCCESS] facture no. {facture.invoice_number}")
+            print(f"[SUCCESS] facture no. {facture.invoice_number}")
             with open("LAST.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
