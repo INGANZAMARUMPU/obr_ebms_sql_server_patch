@@ -55,7 +55,7 @@ def main():
             '1' AS vat_customer_payer,
             '' AS cancelled_invoice_ref,
             Facture.numFact AS invoice_ref,
-            '' AS invoice_signature,
+            Facture.signatureobr AS invoice_signature,
             Facture.dateFact AS invoice_signature_date
         FROM
             Facture
