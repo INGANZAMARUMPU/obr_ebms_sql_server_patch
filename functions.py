@@ -34,6 +34,9 @@ def login():
 
 def sendToOBR(facture_dict):
 	global headers
+	if variables.obr_user not in facture_dict["invoice_signature"]:
+		return STATUS.IGNORED
+
 	if not headers.get('Authorization'):
 		if not login():
 			return STATUS.FAILED

@@ -21,7 +21,7 @@ def main():
     cursor = conn.cursor()
 
     with open("LAST.DAT", 'r') as file:
-        min_date = file.readline() or "2022-16-11 00:00:00"
+        min_date = file.readline() or "2022-25-11 00:00:00"
         print(f"NEW PROCESS STARTING ON {min_date}")
 
     query = """
