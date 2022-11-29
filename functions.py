@@ -1,4 +1,5 @@
 from enum import Enum
+from datetime import date
 
 import requests
 import json
@@ -10,6 +11,13 @@ class STATUS(Enum):
     FAILED = 0
     SUCCESS = 1
     IGNORED = 2
+
+def console_log(*things):
+    if variables.DEBUG:
+        print(*things)
+    else:
+        with open(f"logs/{date.today()}.txt", "a") as file:
+            print(*things, file=file)
 
 def login():
 	data = {
@@ -29,7 +37,7 @@ def login():
 		}
 		return True
 	except Exception as e:
-		print(f"Erreur d'authentification:\n{e}")
+		console_log(f"Erreur d'authentification:\n{e}")
 		return False
 
 def sendToOBR(facture_dict):
@@ -53,8 +61,8 @@ def sendToOBR(facture_dict):
 	response = r.json()
 	if(not response["success"]):
 		if('existe déjà' in response["msg"] or 'date actuelle' in response["msg"]):
-			print(response["msg"])
+			console_log(response["msg"])
 			return STATUS.IGNORED
-		print(response["msg"])
+		console_log(response["msg"])
 		return STATUS.FAILED
 	return STATUS.SUCCESS

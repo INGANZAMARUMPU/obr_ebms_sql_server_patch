@@ -1,31 +1,28 @@
 import pyodbc
 from facture import Facture
 from tqdm import tqdm
-from datetime import datetime, date
+from datetime import datetime
 import schedule 
 import time 
 
 import variables
 from functions import *
 
-def console_log(*things):
-    if variables.DEBUG:
-        print(*things)
-    else:
-        with open(f"logs/{date.today()}.txt", "a+") as file:
-            print(*things, file=file)
-
 def main():
     console_log("connecting to the server")
-    conn = pyodbc.connect(
-        driver=variables.driver,
-        host=variables.host,
-        database=variables.database,
-        user=variables.user,
-        password=variables.password,
-    )
+    try:
+        conn = pyodbc.connect(
+            driver=variables.driver,
+            host=variables.host,
+            database=variables.database,
+            user=variables.user,
+            password=variables.password,
+        )
 
-    cursor = conn.cursor()
+        cursor = conn.cursor()
+    except Exception as e:
+        console_log(f"[SQL SERVER] {e}")
+        return
 
     with open("LAST.DAT", 'r') as file:
         min_date = file.readline() or "2022-25-11 00:00:00"
@@ -84,9 +81,12 @@ def main():
 
     console_log("Sending SQL QUERY")
     # console_log(query)
-    cursor.execute(query, variables.obr_nif, min_date)
-
-    items = cursor.fetchall()
+    try:
+        cursor.execute(query, variables.obr_nif, min_date)
+        items = cursor.fetchall()
+    except Exception as e:
+        console_log(f"[SQL SERVER] {e}")
+        return
 
     console_log(f"iteration on {len(items)} got from db")
     # for item in tqdm(items):
