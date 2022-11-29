@@ -1,15 +1,22 @@
 import pyodbc
 from facture import Facture
 from tqdm import tqdm
-from datetime import datetime
+from datetime import datetime, date
 import schedule 
 import time 
 
 import variables
 from functions import *
 
+def console_log(*things):
+    if variables.DEBUG:
+        print(*things)
+    else:
+        with open(f"logs/{date.today()}.txt", "a+") as file:
+            print(*things, file=file)
+
 def main():
-    print("connecting to the server")
+    console_log("connecting to the server")
     conn = pyodbc.connect(
         driver=variables.driver,
         host=variables.host,
@@ -22,7 +29,7 @@ def main():
 
     with open("LAST.DAT", 'r') as file:
         min_date = file.readline() or "2022-25-11 00:00:00"
-        print(f"NEW PROCESS STARTING ON {min_date}")
+        console_log(f"NEW PROCESS STARTING ON {min_date}")
 
     query = """
         SELECT
@@ -75,29 +82,29 @@ def main():
             Facture.DateFact
     """
 
-    print("Sending SQL QUERY")
-    # print(query)
+    console_log("Sending SQL QUERY")
+    # console_log(query)
     cursor.execute(query, variables.obr_nif, min_date)
 
     items = cursor.fetchall()
 
-    print(f"iteration on {len(items)} got from db")
+    console_log(f"iteration on {len(items)} got from db")
     # for item in tqdm(items):
     for i, item in enumerate(items):
         facture = Facture(*item)
         facture.generateObrFact(cursor)
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
-            print(f"[SUCCESS] facture no. {facture.invoice_number}")
+            console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
             with open("LAST.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
             continue
         elif send_status == STATUS.FAILED:
-            print(f"[FAILED] facture no. {facture.invoice_number}")
+            console_log(f"[FAILED] facture no. {facture.invoice_number}")
             break
-        print(f"[IGNORED] facture no. {facture.invoice_number}")
+        console_log(f"[IGNORED] facture no. {facture.invoice_number}")
 
 if __name__ == "__main__":
     main()
