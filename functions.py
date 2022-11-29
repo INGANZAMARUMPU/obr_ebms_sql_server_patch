@@ -16,13 +16,13 @@ def login():
 		"username": variables.obr_user,
 		"password": variables.obr_pass
 	}
-	r  = requests.post(
-		variables.obr_url+"/login/",
-		data=json.dumps(data),
-		timeout=20
-	)
 	global headers
 	try:
+		r = requests.post(
+			variables.obr_url+"/login/",
+			data=json.dumps(data),
+			timeout=20
+		)
 		token = r.json()["result"]["token"]
 		headers = {
 			'Authorization': "Bearer "+token
