@@ -18,7 +18,6 @@ def main():
             user=variables.user,
             password=variables.password,
         )
-
         cursor = conn.cursor()
     except Exception as e:
         console_log(f"[SQL SERVER] {e}")
@@ -79,9 +78,8 @@ def main():
             Facture.DateFact
     """
 
-    console_log("Sending SQL QUERY")
-    # console_log(query)
     try:
+        # console_log(query)
         cursor.execute(query, variables.obr_nif, min_date)
         items = cursor.fetchall()
     except Exception as e:

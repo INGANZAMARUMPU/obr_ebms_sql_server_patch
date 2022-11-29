@@ -41,6 +41,8 @@ class Facture:
     def __post_init__(self):
         date = self.invoice_date.strftime("%Y%m%d%H%M%S")
         self.invoice_date = self.invoice_date.strftime("%Y-%m-%d %H:%M:%S")
+        # GENERATE NEW SIGNATURE
+        self.invoice_signature = f"{variables.obr_nif}/{variables.obr_user}/{date}/{self.invoice_number}"
         self.invoice_signature_date = self.invoice_signature_date.strftime("%Y-%m-%d %H:%M:%S")
         self.invoice_items = []
         self.customer_TIN = self.customer_TIN or ""
