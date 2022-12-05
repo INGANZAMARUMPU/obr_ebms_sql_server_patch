@@ -2,8 +2,8 @@ import pyodbc
 from facture import Facture
 from tqdm import tqdm
 from datetime import datetime
-import schedule 
-import time 
+import schedule
+import time
 
 import variables
 from functions import *
@@ -64,7 +64,7 @@ def main():
             Facture
         JOIN
             clients
-        ON 
+        ON
             Facture.idCli = clients.IdCli
         LEFT OUTER JOIN
             adresseCli
@@ -96,6 +96,17 @@ def main():
             console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
             with open("LAST.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+                file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
+                file.seek(0)
+            continue
+        if send_status == STATUS.UPDATED:
+            console_log(f"[UPDATED] facture no. {facture.cancelled_invoice_ref} replaced by facture no. {facture.invoice_number}")
+            with open("LAST.DAT", 'w') as file:
+                last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+                file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
+                file.seek(0)
+            with open("DELETED.DAT", 'w') as file:
+                last_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
             continue
