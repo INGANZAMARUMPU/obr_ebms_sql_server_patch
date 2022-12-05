@@ -23,15 +23,16 @@ def main():
         console_log(f"[SQL SERVER] {e}")
         return
 
-    # reading fature to send
+    # reading min date for invoices to send
     with open("LAST.DAT", 'r') as file:
         min_date = file.readline() or "2022-25-11 00:00:00"
         console_log(f"NEW PROCESS STARTING ON {min_date}")
 
-    # reading facture to replace
+    # reading min date for invoices to replace
     with open("DELETED.DAT", 'r') as file:
         min_del_date = file.readline() or "2022-25-11 00:00:00"
 
+    # reading invoices to send
     try:
         query = genFactureQuery()
         # console_log(query)
@@ -41,11 +42,21 @@ def main():
         console_log(f"[SQL SERVER] {e}")
         return
 
+    # reading invoices to replace
+    try:
+        query = getDeletedQuery()
+        # console_log(query)
+        cursor.execute(query, min_del_date)
+        deleted_items = cursor.fetchall()
+    except Exception as e:
+        console_log(f"[SQL SERVER] {e}")
+        return
+
     console_log(f"iteration on {len(items)} got from db")
     # for item in tqdm(items):
     for i, item in enumerate(items):
         facture = Facture(*item)
-        facture.generateObrFact(cursor)
+        facture.generateObrFact(cursor, deleted_items[0]["invoice_ref"])
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
             console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
@@ -61,9 +72,10 @@ def main():
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
             with open("DELETED.DAT", 'w') as file:
-                last_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+                last_date = datetime.strptime(deleted_items[0]["invoice_date"], '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
+            del deleted_items[0]
             continue
         elif send_status == STATUS.FAILED:
             console_log(f"[FAILED] facture no. {facture.invoice_number}")
