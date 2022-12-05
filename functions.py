@@ -69,3 +69,69 @@ def sendToOBR(facture_dict):
     if(facture_dict["cancelled_invoice_ref"]):
         return STATUS.UPDATED
     return STATUS.SUCCESS
+
+def genFactureQuery():
+    return """
+        SELECT
+            Facture.numFact AS invoice_number,
+            Facture.dateFact AS invoice_date,
+            'FN' AS invoice_type,
+            '2' AS tp_type,
+            'NELIC TELECOM' AS tp_name,
+            ? AS tp_TIN,
+            '05267' AS tp_trade_number,
+            '' AS tp_postal_number,
+            '+25769069120' AS tp_phone_number,
+            'BUJUMBURA' AS tp_address_province,
+            'MUKAZA' AS tp_address_commune,
+            'ROHERO' AS tp_address_quartier,
+            'BUSINESS PLAZA' AS tp_address_avenue,
+            'No. 20' AS tp_address_number,
+            '0' AS vat_taxpayer,
+            '0' AS ct_taxpayer,
+            '0' AS tl_taxpayer,
+            'DMC' AS tp_fiscal_center,
+            'VENTE DE CARTE DE RECHARGE' AS tp_activity_sector,
+            'S.U.' AS tp_legal_form,
+
+            '1' AS payment_type,
+            'BIF' AS invoice_currency,
+            clients.NomCli+' '+clients.PrenomCli AS customer_name,
+            clients.NIF AS customer_TIN,
+            adresseCli.commune+' '+adresseCli.province AS customer_address,
+            '1' AS vat_customer_payer,
+            '' AS cancelled_invoice_ref,
+            Facture.numFact AS invoice_ref,
+            Facture.signatureobr AS invoice_signature,
+            Facture.dateFact AS invoice_signature_date
+        FROM
+            Facture
+        JOIN
+            clients
+        ON
+            Facture.idCli = clients.IdCli
+        LEFT OUTER JOIN
+            adresseCli
+        ON
+            Facture.IdCli = adresseCli.IdCli
+        WHERE
+            Facture.DateFact > ?
+        AND
+            Facture.signatureobr IS NOT NULL
+        ORDER BY
+            Facture.DateFact
+    """
+
+def getDeletedQuery():
+    return """
+        SELECT
+            facturedel.numFact AS invoice_number,
+            facturedel.dateFact AS invoice_date,
+            facturedel.numFact AS invoice_ref
+        FROM
+            facturedel
+        WHERE
+            facturedel.DateFact > ?
+        ORDER BY
+            facturedel.DateFact
+    """
