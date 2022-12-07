@@ -49,18 +49,22 @@ def sendToOBR(facture_dict, forcing_creation=False):
     if not headers.get('Authorization'):
         if not login():
             return STATUS.FAILED
-    r = requests.post(
-        variables.obr_url+"/addInvoice/",
-        data=json.dumps(facture_dict),
-        headers=headers,
-        timeout=20
-    )
+    try:
+        r = requests.post(
+            variables.obr_url+"/addInvoice/",
+            data=json.dumps(facture_dict),
+            headers=headers,
+            timeout=20
+        )
+    except Exception as e:
+        console_log(str(e)) 
+        return STATUS.FAILED
     if r.status_code == 403:
         if not login():
             return STATUS.FAILED
         return sendToOBR(facture_dict)
     response = r.json()
-    
+
     if (not response["success"]):
         if('déjà annulée' in response["msg"]):
             facture_dict['cancelled_invoice_ref'] = ''

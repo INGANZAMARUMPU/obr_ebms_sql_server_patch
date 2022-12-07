@@ -17,7 +17,7 @@ def sendCorrect(cursor, items, deleted_items):
         if(len(deleted_items) > 0):
             deleted_facture = Facture(*deleted_items[0])
             facture.cancelled_invoice_ref = deleted_facture.invoice_ref
-            console_log(f"[SENDING] facture no. {facture.invoice_number} [REPLACING] {replacing}")
+            console_log(f"[REPLACING] facture no. {deleted_facture.invoice_ref}")
 
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
@@ -48,7 +48,7 @@ def sendDeleted(cursor, items):
     console_log(f"\nSENDING {len(items)} DELETED INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
-        facture.generateObrFact(cursor, None)
+        facture.generateObrFact(cursor)
 
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
