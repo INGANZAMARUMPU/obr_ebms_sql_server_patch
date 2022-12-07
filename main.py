@@ -44,22 +44,17 @@ def sendCorrect(cursor, items, deleted_items):
         console_log(f"[IGNORED] facture no. {facture.invoice_number}")
 
 def sendDeleted(cursor, items):
-    console_log("SENDING {len(items)} DELETED INVOICES\n{'='*100}")
+    console_log(f"SENDING {len(items)} DELETED INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
         facture.generateObrFact(cursor, None)
 
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
-            console_log(f"[DELETE-SUCCESS] facture no. {facture.invoice_number}")
-            with open("DELETED.DAT", 'w') as file:
-                last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
-                file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
-                file.seek(0)
+            console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
         elif send_status == STATUS.FAILED:
-            console_log(f"[DELETE-FAILED] facture no. {facture.invoice_number}")
-            continue
-        console_log(f"[DELETE-IGNORED] facture no. {facture.invoice_number}")
+            console_log(f"[FAILED] facture no. {facture.invoice_number}")
+        console_log(f"[IGNORED] facture no. {facture.invoice_number}")
 
 def main():
     console_log("connecting to the server")

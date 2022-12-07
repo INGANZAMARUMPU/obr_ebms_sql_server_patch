@@ -41,7 +41,7 @@ def login():
         console_log(f"Erreur d'authentification:\n{e}")
         return False
 
-def sendToOBR(facture_dict):
+def sendToOBR(facture_dict, forcing_creation=False):
     global headers
     if variables.obr_user not in facture_dict["invoice_signature"]:
         return STATUS.IGNORED
@@ -63,7 +63,7 @@ def sendToOBR(facture_dict):
     if (not response["success"]):
         if('déjà annulée' in response["msg"]):
             facture_dict['cancelled_invoice_ref'] = ''
-            return sendToOBR(facture_dict)
+            return sendToOBR(facture_dict, True)
 
         if ('existe déjà' in response["msg"] or
             'date actuelle' in response["msg"]):
@@ -72,7 +72,7 @@ def sendToOBR(facture_dict):
             return STATUS.IGNORED
         console_log(response["msg"])
         return STATUS.FAILED
-    if(facture_dict["cancelled_invoice_ref"]):
+    if(facture_dict["cancelled_invoice_ref"] or forcing_creation):
         return STATUS.UPDATED
     return STATUS.SUCCESS
 
