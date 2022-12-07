@@ -61,7 +61,13 @@ def sendToOBR(facture_dict):
         return sendToOBR(facture_dict)
     response = r.json()
     if (not response["success"]):
-        if ('existe déjà' in response["msg"] or 'date actuelle' in response["msg"]):
+        if('déjà annulée' in response["msg"]):
+            facture_dict['cancelled_invoice_ref'] = ''
+            return sendToOBR(facture_dict)
+
+        if ('existe déjà' in response["msg"] or
+            'date actuelle' in response["msg"]):
+
             console_log(response["msg"])
             return STATUS.IGNORED
         console_log(response["msg"])
@@ -74,7 +80,7 @@ def genFactureQuery(table):
     return f"""
         SELECT
             {table}.numFact AS invoice_number,
-            {table}.dateFact AS invoice_date,
+            {table}.DateFact AS invoice_date,
             'FN' AS invoice_type,
             '2' AS tp_type,
             'NELIC TELECOM' AS tp_name,
@@ -103,13 +109,13 @@ def genFactureQuery(table):
             '' AS cancelled_invoice_ref,
             {table}.numFact AS invoice_ref,
             {table}.signatureobr AS invoice_signature,
-            {table}.dateFact AS invoice_signature_date
+            {table}.DateFact AS invoice_signature_date
         FROM
-            Facture
+            {table}
         JOIN
             clients
         ON
-            {table}.idCli = clients.IdCli
+            {table}.IdCli = clients.IdCli
         LEFT OUTER JOIN
             adresseCli
         ON

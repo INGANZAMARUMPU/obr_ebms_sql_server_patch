@@ -7,7 +7,7 @@ import time
 import variables
 from functions import *
 
-def sendCorrect(items, deleted_items):
+def sendCorrect(cursor, items, deleted_items):
     console_log(f"SENDING {len(items)} CORRECT INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
@@ -43,7 +43,7 @@ def sendCorrect(items, deleted_items):
             break
         console_log(f"[IGNORED] facture no. {facture.invoice_number}")
 
-def sendDeleted(items)
+def sendDeleted(cursor, items):
     console_log("SENDING {len(items)} DELETED INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
@@ -52,13 +52,13 @@ def sendDeleted(items)
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
             console_log(f"[DELETE-SUCCESS] facture no. {facture.invoice_number}")
-            with open("LAST.DAT", 'w') as file:
+            with open("DELETED.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
-        else send_status == STATUS.FAILED:
+        elif send_status == STATUS.FAILED:
             console_log(f"[DELETE-FAILED] facture no. {facture.invoice_number}")
-            break
+            continue
         console_log(f"[DELETE-IGNORED] facture no. {facture.invoice_number}")
 
 def main():
@@ -87,7 +87,7 @@ def main():
 
     # reading invoices to send
     try:
-        query = getFactureQuery("Facture")
+        query = genFactureQuery("Facture")
         # console_log(query)
         cursor.execute(query, variables.obr_nif, min_date)
         items = cursor.fetchall()
@@ -97,16 +97,16 @@ def main():
 
     # reading invoices to replace
     try:
-        query = getFactureQuery("facturedel")
+        query = genFactureQuery("facturedel")
         # console_log(query)
-        cursor.execute(query, min_del_date)
+        cursor.execute(query, variables.obr_nif, min_del_date)
         deleted_items = cursor.fetchall()
     except Exception as e:
         console_log(f"[SQL SERVER] {e}")
         return
 
-    sendDeleted(deleted_items)
-    sendCorrect(items, deleted_items)
+    sendDeleted(cursor, deleted_items)
+    sendCorrect(cursor, items, deleted_items)
 
 if __name__ == "__main__":
     main()
