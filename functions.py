@@ -66,7 +66,8 @@ def sendToOBR(facture_dict, forcing_creation=False):
     response = r.json()
 
     if (not response["success"]):
-        if('déjà annulée' in response["msg"]):
+        if('déjà annulée' in response["msg"] or
+            'annulée ne correspond' in response["msg"]):
             facture_dict['cancelled_invoice_ref'] = ''
             return sendToOBR(facture_dict, True)
 
