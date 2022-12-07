@@ -60,6 +60,7 @@ def sendToOBR(facture_dict, forcing_creation=False):
             return STATUS.FAILED
         return sendToOBR(facture_dict)
     response = r.json()
+    
     if (not response["success"]):
         if('déjà annulée' in response["msg"]):
             facture_dict['cancelled_invoice_ref'] = ''
@@ -67,11 +68,12 @@ def sendToOBR(facture_dict, forcing_creation=False):
 
         if ('existe déjà' in response["msg"] or
             'date actuelle' in response["msg"]):
-
             console_log(response["msg"])
             return STATUS.IGNORED
+
         console_log(response["msg"])
         return STATUS.FAILED
+
     if(facture_dict["cancelled_invoice_ref"] or forcing_creation):
         return STATUS.UPDATED
     return STATUS.SUCCESS

@@ -8,7 +8,7 @@ import variables
 from functions import *
 
 def sendCorrect(cursor, items, deleted_items):
-    console_log(f"SENDING {len(items)} CORRECT INVOICES\n{'='*100}")
+    console_log(f"\nSENDING {len(items)} CORRECT INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
         deleted_facture = None
@@ -17,6 +17,9 @@ def sendCorrect(cursor, items, deleted_items):
             facture.generateObrFact(cursor, deleted_facture.invoice_ref)
         else:
             facture.generateObrFact(cursor, None)
+
+        replacing = facture.invoice_number if facture else None
+        console_log(f"[SENDING] facture no. {facture.invoice_number} [REPLACING] {replacing}")
 
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
@@ -44,7 +47,7 @@ def sendCorrect(cursor, items, deleted_items):
         console_log(f"[IGNORED] facture no. {facture.invoice_number}")
 
 def sendDeleted(cursor, items):
-    console_log(f"SENDING {len(items)} DELETED INVOICES\n{'='*100}")
+    console_log(f"\nSENDING {len(items)} DELETED INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
         facture.generateObrFact(cursor, None)
