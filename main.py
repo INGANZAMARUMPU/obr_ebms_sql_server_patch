@@ -13,7 +13,7 @@ def successCallBack(facture):
         file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
         file.seek(0)
 
-def updatedCallBack(facture):
+def updatedCallBack(facture, deleted_facture):
     successCallBack(facture)
     with open("DELETED.DAT", 'w') as file:
         last_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
@@ -39,7 +39,7 @@ def sendCorrect(cursor, items, deleted_items):
             continue
         if send_status == STATUS.UPDATED:
             console_log(f"[UPDATED] facture no. {facture.cancelled_invoice_ref} replaced by facture no. {facture.invoice_number}")
-            updatedCallBack(facture)
+            updatedCallBack(facture, deleted_facture)
             del deleted_items[0]
             continue
         elif send_status == STATUS.FAILED:
@@ -54,7 +54,7 @@ def sendDeleted(cursor, items):
         facture.generateObrFact(cursor)
 
         send_status = sendToOBR(facture.__dict__)
-        console_log(f"[{send_status}] facture no. {facture.invoice_number}")
+        console_log(f"[{send_status.value}] facture no. {facture.invoice_number}")
 
 def main():
     console_log("connecting to the server")
