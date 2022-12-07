@@ -7,6 +7,19 @@ import time
 import variables
 from functions import *
 
+def successCallBack(facture):
+    with open("LAST.DAT", 'w') as file:
+        last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+        file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
+        file.seek(0)
+
+def updatedCallBack(facture):
+    successCallBack(facture)
+    with open("DELETED.DAT", 'w') as file:
+        last_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+        file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
+        file.seek(0)
+
 def sendCorrect(cursor, items, deleted_items):
     console_log(f"\nSENDING {len(items)} CORRECT INVOICES\n{'='*100}")
     for i, item in enumerate(items):
@@ -22,21 +35,11 @@ def sendCorrect(cursor, items, deleted_items):
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
             console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
-            with open("LAST.DAT", 'w') as file:
-                last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
-                file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
-                file.seek(0)
+            successCallBack(facture)
             continue
         if send_status == STATUS.UPDATED:
             console_log(f"[UPDATED] facture no. {facture.cancelled_invoice_ref} replaced by facture no. {facture.invoice_number}")
-            with open("LAST.DAT", 'w') as file:
-                last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
-                file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
-                file.seek(0)
-            with open("DELETED.DAT", 'w') as file:
-                last_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
-                file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
-                file.seek(0)
+            updatedCallBack(facture)
             del deleted_items[0]
             continue
         elif send_status == STATUS.FAILED:
