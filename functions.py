@@ -13,6 +13,9 @@ class STATUS(Enum):
     UPDATED = "UPDATED"
     IGNORED = "IGNORED"
 
+class AlreadyDeletedException(Exception):
+    pass
+
 def console_log(*things):
     if variables.DEBUG:
         print(*things)
@@ -41,7 +44,7 @@ def login():
         console_log(f"Erreur d'authentification:\n{e}")
         return False
 
-def sendToOBR(facture_dict, forcing_creation=False):
+def sendToOBR(facture_dict):
     global headers
     if variables.obr_user not in facture_dict["invoice_signature"]:
         return STATUS.IGNORED
@@ -68,8 +71,7 @@ def sendToOBR(facture_dict, forcing_creation=False):
     if (not response["success"]):
         if('déjà annulée' in response["msg"] or
             'annulée ne correspond' in response["msg"]):
-            facture_dict['cancelled_invoice_ref'] = ''
-            return sendToOBR(facture_dict, True)
+            raise AlreadyDeletedException(response["msg"])
 
         if ('existe déjà' in response["msg"] or
             'date actuelle' in response["msg"]):
@@ -79,7 +81,7 @@ def sendToOBR(facture_dict, forcing_creation=False):
         console_log(response["msg"])
         return STATUS.FAILED
 
-    if(facture_dict["cancelled_invoice_ref"] or forcing_creation):
+    if(facture_dict["cancelled_invoice_ref"]):
         return STATUS.UPDATED
     return STATUS.SUCCESS
 

@@ -7,16 +7,9 @@ import time
 import variables
 from functions import *
 
-def successCallBack(facture):
-    with open("LAST.DAT", 'w') as file:
+def writeInFile(file, facture):
+    with open(f"{file}.DAT", 'w') as file:
         last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
-        file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
-        file.seek(0)
-
-def updatedCallBack(facture, deleted_facture):
-    successCallBack(facture)
-    with open("DELETED.DAT", 'w') as file:
-        last_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
         file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
         file.seek(0)
 
@@ -27,25 +20,32 @@ def sendCorrect(cursor, items, deleted_items):
         facture.generateObrFact(cursor)
         deleted_facture = None
         
-        if(len(deleted_items) > 0):
-            deleted_facture = Facture(*deleted_items[0])
-            facture.cancelled_invoice_ref = deleted_facture.invoice_ref
-            console_log(f"[REPLACING] facture no. {deleted_facture.invoice_ref}")
+        while 1:
+            try:
+                if(len(deleted_items) > 0):
+                    deleted_facture = Facture(*deleted_items[0])
+                    facture.cancelled_invoice_ref = deleted_facture.invoice_ref
+                    console_log(f"[REPLACING] facture no. {deleted_facture.invoice_ref}")
 
-        send_status = sendToOBR(facture.__dict__)
-        if send_status == STATUS.SUCCESS:
-            console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
-            successCallBack(facture)
-            continue
-        if send_status == STATUS.UPDATED:
-            console_log(f"[UPDATED] facture no. {facture.cancelled_invoice_ref} replaced by facture no. {facture.invoice_number}")
-            updatedCallBack(facture, deleted_facture)
-            del deleted_items[0]
-            continue
-        elif send_status == STATUS.FAILED:
-            console_log(f"[FAILED] facture no. {facture.invoice_number}")
-            break
-        console_log(f"[IGNORED] facture no. {facture.invoice_number}")
+                send_status = sendToOBR(facture.__dict__)
+                if send_status == STATUS.SUCCESS:
+                    console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
+                    writeInFile('LAST', facture)
+                elif send_status == STATUS.UPDATED:
+                    console_log(f"[UPDATED] facture no. {facture.cancelled_invoice_ref} replaced by facture no. {facture.invoice_number}")
+                    writeInFile('LAST', facture)
+                    writeInFile('DELETED', deleted_facture)
+                    del deleted_items[0]
+                elif send_status == STATUS.FAILED:
+                    console_log(f"[FAILED] facture no. {facture.invoice_number}")
+                else:
+                    console_log(f"[IGNORED] facture no. {facture.invoice_number}")
+                break
+            except AlreadyDeletedException as e:
+                console_log(str(e))
+                writeInFile('DELETED', deleted_facture)
+                if(len(deleted_items) > 0):
+                    del deleted_items[0]
 
 def sendDeleted(cursor, items):
     console_log(f"\nSENDING {len(items)} DELETED INVOICES\n{'='*100}")
