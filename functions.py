@@ -8,10 +8,10 @@ import variables
 headers = {}
 
 class STATUS(Enum):
-    FAILED = 0
-    SUCCESS = 1
-    UPDATED = 1
-    IGNORED = 2
+    FAILED = "FAILED"
+    SUCCESS = "SUCCESS"
+    UPDATED = "UPDATED"
+    IGNORED = "IGNORED"
 
 def console_log(*things):
     if variables.DEBUG:

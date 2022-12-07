@@ -51,11 +51,7 @@ def sendDeleted(cursor, items):
         facture.generateObrFact(cursor)
 
         send_status = sendToOBR(facture.__dict__)
-        if send_status == STATUS.SUCCESS:
-            console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
-        elif send_status == STATUS.FAILED:
-            console_log(f"[FAILED] facture no. {facture.invoice_number}")
-        console_log(f"[IGNORED] facture no. {facture.invoice_number}")
+        console_log(f"[{send_status}] facture no. {facture.invoice_number}")
 
 def main():
     console_log("connecting to the server")
