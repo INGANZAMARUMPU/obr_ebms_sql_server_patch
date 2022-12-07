@@ -48,10 +48,7 @@ class Facture:
         self.customer_TIN = self.customer_TIN or ""
         self.customer_address = self.customer_address or ""
 
-    def generateObrFact(self, cursor, cancelled_invoice_ref):
-        if(cancelled_invoice_ref):
-            self.cancelled_invoice_ref = cancelled_invoice_ref
-
+    def generateObrFact(self, cursor):
         query = """
             SELECT
                 TypeCarte.NomCarte AS item_designation,

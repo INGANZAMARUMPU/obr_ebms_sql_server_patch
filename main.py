@@ -11,15 +11,13 @@ def sendCorrect(cursor, items, deleted_items):
     console_log(f"\nSENDING {len(items)} CORRECT INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
+        facture.generateObrFact(cursor)
         deleted_facture = None
+        
         if(len(deleted_items) > 0):
             deleted_facture = Facture(*deleted_items[0])
-            facture.generateObrFact(cursor, deleted_facture.invoice_ref)
-        else:
-            facture.generateObrFact(cursor, None)
-
-        replacing = facture.invoice_number if facture else None
-        console_log(f"[SENDING] facture no. {facture.invoice_number} [REPLACING] {replacing}")
+            facture.cancelled_invoice_ref = deleted_facture.invoice_ref
+            console_log(f"[SENDING] facture no. {facture.invoice_number} [REPLACING] {replacing}")
 
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
