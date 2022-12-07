@@ -26,7 +26,7 @@ def main():
     # reading min date for invoices to send
     with open("LAST.DAT", 'r') as file:
         min_date = file.readline() or "2022-25-11 00:00:00"
-        console_log(f"NEW PROCESS STARTING ON {min_date}")
+        console_log(f"NEW PROCESS STARTING FROM {min_date}")
 
     # reading min date for invoices to replace
     with open("DELETED.DAT", 'r') as file:
@@ -56,7 +56,11 @@ def main():
     # for item in tqdm(items):
     for i, item in enumerate(items):
         facture = Facture(*item)
-        facture.generateObrFact(cursor, deleted_items[0]["invoice_ref"])
+        if(len(deleted_items) > 0):
+            facture.generateObrFact(cursor, deleted_items[0][2])
+        else:
+            facture.generateObrFact(cursor, None)
+
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
             console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
