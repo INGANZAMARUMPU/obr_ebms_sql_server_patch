@@ -7,12 +7,14 @@ import time
 import variables
 from functions import *
 
-def sendCorrect(items):
-    console_log(f"SENDING {len(items)} CORRECT INVOICES\n{"="*100}")
+def sendCorrect(items, deleted_items):
+    console_log(f"SENDING {len(items)} CORRECT INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
+        deleted_facture = None
         if(len(deleted_items) > 0):
-            facture.generateObrFact(cursor, deleted_items[0][2])
+            deleted_facture = Facture(*deleted_items[0])
+            facture.generateObrFact(cursor, deleted_facture.invoice_ref)
         else:
             facture.generateObrFact(cursor, None)
 
@@ -31,7 +33,7 @@ def sendCorrect(items):
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
             with open("DELETED.DAT", 'w') as file:
-                last_date = datetime.strptime(deleted_items[0]["invoice_date"], '%Y-%m-%d %H:%M:%S')
+                last_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
             del deleted_items[0]
@@ -42,22 +44,22 @@ def sendCorrect(items):
         console_log(f"[IGNORED] facture no. {facture.invoice_number}")
 
 def sendDeleted(items)
-    console_log("SENDING {len(items)} DELETED INVOICES\n{"="*100}")
+    console_log("SENDING {len(items)} DELETED INVOICES\n{'='*100}")
     for i, item in enumerate(items):
         facture = Facture(*item)
         facture.generateObrFact(cursor, None)
 
         send_status = sendToOBR(facture.__dict__)
         if send_status == STATUS.SUCCESS:
-            console_log(f"[SUCCESS] facture no. {facture.invoice_number}")
+            console_log(f"[DELETE-SUCCESS] facture no. {facture.invoice_number}")
             with open("LAST.DAT", 'w') as file:
                 last_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
                 file.write(last_date.strftime("%Y-%d-%m %H:%M:%S"))
                 file.seek(0)
         else send_status == STATUS.FAILED:
-            console_log(f"[FAILED] facture no. {facture.invoice_number}")
+            console_log(f"[DELETE-FAILED] facture no. {facture.invoice_number}")
             break
-        console_log(f"[IGNORED] facture no. {facture.invoice_number}")
+        console_log(f"[DELETE-IGNORED] facture no. {facture.invoice_number}")
 
 def main():
     console_log("connecting to the server")
@@ -85,7 +87,7 @@ def main():
 
     # reading invoices to send
     try:
-        query = genFactureQuery()
+        query = getFactureQuery("Facture")
         # console_log(query)
         cursor.execute(query, variables.obr_nif, min_date)
         items = cursor.fetchall()
@@ -95,7 +97,7 @@ def main():
 
     # reading invoices to replace
     try:
-        query = getDeletedQuery()
+        query = getFactureQuery("facturedel")
         # console_log(query)
         cursor.execute(query, min_del_date)
         deleted_items = cursor.fetchall()
@@ -103,10 +105,8 @@ def main():
         console_log(f"[SQL SERVER] {e}")
         return
 
-    console_log(f"iteration on {len(items)} got from db")
-
-    sendDeleted()
-    sendCorrect()
+    sendDeleted(deleted_items)
+    sendCorrect(items, deleted_items)
 
 if __name__ == "__main__":
     main()

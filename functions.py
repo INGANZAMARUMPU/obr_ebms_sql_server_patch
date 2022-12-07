@@ -70,11 +70,11 @@ def sendToOBR(facture_dict):
         return STATUS.UPDATED
     return STATUS.SUCCESS
 
-def genFactureQuery():
-    return """
+def genFactureQuery(table):
+    return f"""
         SELECT
-            Facture.numFact AS invoice_number,
-            Facture.dateFact AS invoice_date,
+            {table}.numFact AS invoice_number,
+            {table}.dateFact AS invoice_date,
             'FN' AS invoice_type,
             '2' AS tp_type,
             'NELIC TELECOM' AS tp_name,
@@ -101,37 +101,23 @@ def genFactureQuery():
             adresseCli.commune+' '+adresseCli.province AS customer_address,
             '1' AS vat_customer_payer,
             '' AS cancelled_invoice_ref,
-            Facture.numFact AS invoice_ref,
-            Facture.signatureobr AS invoice_signature,
-            Facture.dateFact AS invoice_signature_date
+            {table}.numFact AS invoice_ref,
+            {table}.signatureobr AS invoice_signature,
+            {table}.dateFact AS invoice_signature_date
         FROM
             Facture
         JOIN
             clients
         ON
-            Facture.idCli = clients.IdCli
+            {table}.idCli = clients.IdCli
         LEFT OUTER JOIN
             adresseCli
         ON
-            Facture.IdCli = adresseCli.IdCli
+            {table}.IdCli = adresseCli.IdCli
         WHERE
-            Facture.DateFact > ?
+            {table}.DateFact > ?
         AND
-            Facture.signatureobr IS NOT NULL
+            {table}.signatureobr IS NOT NULL
         ORDER BY
-            Facture.DateFact
-    """
-
-def getDeletedQuery():
-    return """
-        SELECT
-            facturedel.numFact AS invoice_number,
-            facturedel.dateFact AS invoice_date,
-            facturedel.numFact AS invoice_ref
-        FROM
-            facturedel
-        WHERE
-            facturedel.DateFact > ?
-        ORDER BY
-            facturedel.DateFact
+            {table}.DateFact
     """
