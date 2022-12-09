@@ -132,6 +132,8 @@ def genFactureQuery(table):
         WHERE
             {table}.DateFact > ?
         AND
+            {table}.DateFact < ?
+        AND
             {table}.signatureobr IS NOT NULL
         ORDER BY
             {table}.DateFact

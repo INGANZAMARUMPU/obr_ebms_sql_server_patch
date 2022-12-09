@@ -1,6 +1,6 @@
 import pyodbc
 from facture import Facture
-from datetime import datetime
+from datetime import datetime, timedelta
 import schedule
 import time
 
@@ -38,6 +38,7 @@ def sendCorrect(cursor, items, deleted_items):
                     del deleted_items[0]
                 elif send_status == STATUS.FAILED:
                     console_log(f"[FAILED] facture no. {facture.invoice_number}")
+                    return 0
                 else:
                     console_log(f"[IGNORED] facture no. {facture.invoice_number}")
                 break
@@ -71,6 +72,10 @@ def main():
         console_log(f"[SQL SERVER] {e}")
         return
 
+    today = datetime.now()
+    tomorrow = today + timedelta(days=1)
+    max_date = tomorrow.strftime("%Y-%d-%m %H:%M:%S")
+
     # reading min date for invoices to send
     with open("LAST.DAT", 'r') as file:
         min_date = file.readline() or "2022-25-11 00:00:00"
@@ -84,7 +89,7 @@ def main():
     try:
         query = genFactureQuery("Facture")
         # console_log(query)
-        cursor.execute(query, variables.obr_nif, min_date)
+        cursor.execute(query, variables.obr_nif, min_date, max_date)
         items = cursor.fetchall()
     except Exception as e:
         console_log(f"[SQL SERVER] {e}")
@@ -94,7 +99,7 @@ def main():
     try:
         query = genFactureQuery("facturedel")
         # console_log(query)
-        cursor.execute(query, variables.obr_nif, min_del_date)
+        cursor.execute(query, variables.obr_nif, min_del_date, max_date)
         deleted_items = cursor.fetchall()
     except Exception as e:
         console_log(f"[SQL SERVER] {e}")
@@ -106,6 +111,7 @@ def main():
 if __name__ == "__main__":
     main()
     # schedule.every(5).minutes.do(main)
+    # remind me to put variables.DEBUG = False
 
     # while True:
     #     schedule.run_pending()
