@@ -78,18 +78,22 @@ def main():
 
     # reading min date for invoices to send
     with open("LAST.DAT", 'r') as file:
-        min_date = file.readline() or "2022-25-11 00:00:00"
-        console_log(f"NEW PROCESS STARTING FROM {min_date}")
+        str_min_date = file.readline() or "2022-25-11 00:00:00"
+        console_log(f"NEW PROCESS STARTING FROM {str_min_date}")
 
     # reading min date for invoices to replace
     with open("DELETED.DAT", 'r') as file:
-        min_del_date = file.readline() or "2022-25-11 00:00:00"
+        str_min_del_date = file.readline() or "2022-25-11 00:00:00"
+        min_del_date = datetime.strptime(str_min_del_date, '%Y-%m-%d %H:%M:%S')
+        if(min_del_date > today):
+            yesterday = today - timedelta(days=2)
+            str_min_del_date = yesterday.strftime("%Y-%d-%m %H:%M:%S")
 
     # reading invoices to send
     try:
         query = genFactureQuery("Facture")
         # console_log(query)
-        cursor.execute(query, variables.obr_nif, min_date, max_date)
+        cursor.execute(query, variables.obr_nif, str_min_date, max_date)
         items = cursor.fetchall()
     except Exception as e:
         console_log(f"[SQL SERVER] {e}")
@@ -99,7 +103,7 @@ def main():
     try:
         query = genFactureQuery("facturedel")
         # console_log(query)
-        cursor.execute(query, variables.obr_nif, min_del_date, max_date)
+        cursor.execute(query, variables.obr_nif, str_min_del_date, max_date)
         deleted_items = cursor.fetchall()
     except Exception as e:
         console_log(f"[SQL SERVER] {e}")
