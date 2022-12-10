@@ -14,7 +14,7 @@ def writeInFile(file, facture):
         file.seek(0)
 
 def sendCorrect(cursor, items, deleted_items):
-    console_log(f"\nSENDING {len(items)} CORRECT INVOICES\n{'='*100}")
+    console_log(f"\nSENDING {len(items)} CORRECT INVOICES\n{'='*50}")
     for i, item in enumerate(items):
         facture = Facture(*item)
         facture.generateObrFact(cursor)
@@ -49,7 +49,7 @@ def sendCorrect(cursor, items, deleted_items):
                     del deleted_items[0]
 
 def sendDeleted(cursor, items):
-    console_log(f"\nSENDING {len(items)} DELETED INVOICES\n{'='*100}")
+    console_log(f"\nSENDING {len(items)} DELETED INVOICES\n{'='*50}")
     for i, item in enumerate(items):
         facture = Facture(*item)
         facture.generateObrFact(cursor)
@@ -86,7 +86,7 @@ def main():
         str_min_del_date = file.readline() or "2022-25-11 00:00:00"
         min_del_date = datetime.strptime(str_min_del_date, '%Y-%m-%d %H:%M:%S')
         if(min_del_date > today):
-            yesterday = today - timedelta(days=2)
+            yesterday = today - timedelta(days=1)
             str_min_del_date = yesterday.strftime("%Y-%d-%m %H:%M:%S")
 
     # reading invoices to send
@@ -113,9 +113,9 @@ def main():
     sendCorrect(cursor, items, deleted_items)
 
 if __name__ == "__main__":
+    # variables.DEBUG = False
     main()
     # schedule.every(5).minutes.do(main)
-    # remind me to put variables.DEBUG = False
 
     # while True:
     #     schedule.run_pending()
