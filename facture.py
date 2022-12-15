@@ -48,32 +48,32 @@ class Facture:
         self.customer_TIN = self.customer_TIN or ""
         self.customer_address = self.customer_address or ""
 
-    def generateObrFact(self, cursor):
-        query = """
+    def generateObrFact(self, cursor, table):
+        query = f"""
             SELECT
                 TypeCarte.NomCarte AS item_designation,
-                1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float) AS item_quantity,
-                LigneFact.prix AS item_price,
+                1+CAST({table}.FinPlage AS float)-CAST({table}.DebutPlage AS float) AS item_quantity,
+                {table}.prix AS item_price,
                 0 AS item_ct,
                 0 AS item_tl,
-                LigneFact.prix*(
-                    1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float)
+                {table}.prix*(
+                    1+CAST({table}.FinPlage AS float)-CAST({table}.DebutPlage AS float)
                 ) AS item_price_nvat,
                 0 AS vat,
-                LigneFact.prix*(
-                    1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float)
+                {table}.prix*(
+                    1+CAST({table}.FinPlage AS float)-CAST({table}.DebutPlage AS float)
                 ) AS item_price_wvat,
-                LigneFact.prix*(
-                    1+CAST(LigneFact.FinPlage AS float)-CAST(LigneFact.DebutPlage AS float)
+                {table}.prix*(
+                    1+CAST({table}.FinPlage AS float)-CAST({table}.DebutPlage AS float)
                 ) AS item_total_amount
             FROM
-                LigneFact
+                {table}
             JOIN
                 TypeCarte
             ON 
-                TypeCarte.TypeCarte = LigneFact.TypeCartes
+                TypeCarte.TypeCarte = {table}.TypeCartes
             WHERE
-                LigneFact.numFact = ?
+                {table}.numFact = ?
         """
 
         cursor.execute(query, self.invoice_number)

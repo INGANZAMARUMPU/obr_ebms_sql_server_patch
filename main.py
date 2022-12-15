@@ -17,7 +17,7 @@ def sendCorrect(cursor, items, deleted_items):
     console_log(f"\nSENDING {len(items)} CORRECT INVOICES\n{'='*50}")
     for i, item in enumerate(items):
         facture = Facture(*item)
-        facture.generateObrFact(cursor)
+        facture.generateObrFact(cursor, 'LigneFact')
         deleted_facture = None
         
         while 1:
@@ -52,7 +52,7 @@ def sendDeleted(cursor, items):
     console_log(f"\nSENDING {len(items)} DELETED INVOICES\n{'='*50}")
     for i, item in enumerate(items):
         facture = Facture(*item)
-        facture.generateObrFact(cursor)
+        facture.generateObrFact(cursor, 'lignefactdel')
 
         send_status = sendToOBR(facture.__dict__)
         console_log(f"[{send_status.value}] facture no. {facture.invoice_number}")
@@ -84,7 +84,7 @@ def main():
     # reading min date for invoices to replace
     with open("DELETED.DAT", 'r') as file:
         str_min_del_date = file.readline() or "2022-25-11 00:00:00"
-        min_del_date = datetime.strptime(str_min_del_date, '%Y-%m-%d %H:%M:%S')
+        min_del_date = datetime.strptime(str_min_del_date, '%Y-%d-%m %H:%M:%S')
         if(min_del_date > today):
             yesterday = today - timedelta(days=1)
             str_min_del_date = yesterday.strftime("%Y-%d-%m %H:%M:%S")
