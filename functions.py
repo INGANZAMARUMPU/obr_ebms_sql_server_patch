@@ -1,5 +1,6 @@
 from enum import Enum
 from datetime import date
+from pprint import pprint
 
 import requests
 import json
@@ -45,6 +46,7 @@ def login():
         return False
 
 def sendToOBR(facture_dict):
+    #pprint(facture_dict)
     global headers
     if variables.obr_user not in facture_dict["invoice_signature"]:
         return STATUS.IGNORED
@@ -60,17 +62,20 @@ def sendToOBR(facture_dict):
             timeout=20
         )
     except Exception as e:
-        console_log(str(e)) 
+        console_log(str(e))
         return STATUS.FAILED
     if r.status_code == 403:
         if not login():
             return STATUS.FAILED
         return sendToOBR(facture_dict)
-    response = r.json()
+
+    str_dict = r.text[r.text.index("{"):]
+    response = json.loads(str_dict)
 
     if (not response["success"]):
         if('déjà annulée' in response["msg"] or
-            'annulée ne correspond' in response["msg"]):
+            #'annulée ne correspond' in response["msg"] or
+            'doit être inferieur ou égale' in response["msg"]):
             raise AlreadyDeletedException(response["msg"])
 
         if ('existe déjà' in response["msg"] or
@@ -83,6 +88,7 @@ def sendToOBR(facture_dict):
 
     if(facture_dict["cancelled_invoice_ref"]):
         return STATUS.UPDATED
+    
     return STATUS.SUCCESS
 
 def genFactureQuery(table):
@@ -116,7 +122,7 @@ def genFactureQuery(table):
             adresseCli.commune+' '+adresseCli.province AS customer_address,
             '1' AS vat_customer_payer,
             '' AS cancelled_invoice_ref,
-            {table}.numFact AS invoice_ref,
+            '' AS invoice_ref,
             {table}.signatureobr AS invoice_signature,
             {table}.DateFact AS invoice_signature_date
         FROM

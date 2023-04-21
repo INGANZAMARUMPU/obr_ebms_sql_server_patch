@@ -24,8 +24,8 @@ def sendCorrect(cursor, items, deleted_items):
             try:
                 if(len(deleted_items) > 0):
                     deleted_facture = Facture(*deleted_items[0])
-                    facture.cancelled_invoice_ref = deleted_facture.invoice_ref
-                    console_log(f"[REPLACING] facture no. {deleted_facture.invoice_ref}")
+                    facture.cancelled_invoice_ref = deleted_facture.invoice_number
+                    console_log(f"[REPLACING] facture no. {deleted_facture.invoice_number}")
 
                 send_status = sendToOBR(facture.__dict__)
                 if send_status == STATUS.SUCCESS:
@@ -78,12 +78,12 @@ def main():
 
     # reading min date for invoices to send
     with open("LAST.DAT", 'r') as file:
-        str_min_date = file.readline() or "2022-25-11 00:00:00"
+        str_min_date = file.readline().strip() or "2023-19-01 00:00:00"
         console_log(f"NEW PROCESS STARTING FROM {str_min_date}")
 
     # reading min date for invoices to replace
     with open("DELETED.DAT", 'r') as file:
-        str_min_del_date = file.readline() or "2022-25-11 00:00:00"
+        str_min_del_date = file.readline().strip() or "2023-19-01 00:00:00"
         min_del_date = datetime.strptime(str_min_del_date, '%Y-%d-%m %H:%M:%S')
         if(min_del_date > today):
             yesterday = today - timedelta(days=1)
@@ -113,10 +113,10 @@ def main():
     sendCorrect(cursor, items, deleted_items)
 
 if __name__ == "__main__":
-    # variables.DEBUG = False
+    variables.DEBUG = True
     main()
-    # schedule.every(5).minutes.do(main)
+    #schedule.every(5).minutes.do(main)
 
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(10)
+    #while True:
+    #    schedule.run_pending()
+    #    time.sleep(10)
