@@ -24,8 +24,13 @@ def sendCorrect(cursor, items, deleted_items):
             try:
                 if(len(deleted_items) > 0):
                     deleted_facture = Facture(*deleted_items[0])
-                    facture.cancelled_invoice_ref = deleted_facture.invoice_number
-                    console_log(f"[REPLACING] facture no. {deleted_facture.invoice_number}")
+                    
+                    deleted_date = datetime.strptime(deleted_facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+                    current_date = datetime.strptime(facture.invoice_date, '%Y-%m-%d %H:%M:%S')
+
+                    if(deleted_date < current_date):
+                        facture.cancelled_invoice_ref = deleted_facture.invoice_number
+                        console_log(f"[REPLACING] facture no. {deleted_facture.invoice_number}")
 
                 send_status = sendToOBR(facture.__dict__)
                 if send_status == STATUS.SUCCESS:
